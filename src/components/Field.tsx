@@ -11,16 +11,16 @@ interface FieldProps {
 }
 
 const baseInput =
-  'w-full rounded-xl border bg-white/80 px-3.5 py-2.5 text-[15px] text-ink shadow-sm ' +
-  'outline-none transition placeholder:text-muted/60 ' +
-  'focus:border-brand-500 focus:ring-4 focus:ring-brand-500/10'
+  'w-full rounded-lg border bg-white px-3.5 py-2.5 text-[15px] text-ink shadow-sm ' +
+  'outline-none transition placeholder:text-muted/50 ' +
+  'focus:border-brand-500 focus:ring-4 focus:ring-brand-500/10 hover:border-brand-300'
 
 export default function Field({ field, value, onChange, error, prefilled }: FieldProps) {
   const id = `field-${field.key}`
   const invalid = Boolean(error)
   const borderState = invalid
     ? 'border-red-400 focus:border-red-500 focus:ring-red-500/10'
-    : 'border-slate-200'
+    : 'border-line'
 
   const handle = (raw: string) => onChange(field.key, formatValue(field.type, raw))
 
@@ -35,13 +35,16 @@ export default function Field({ field, value, onChange, error, prefilled }: Fiel
 
   return (
     <div className={field.wide ? 'sm:col-span-2' : ''}>
-      <label htmlFor={id} className="mb-1.5 flex items-center gap-2 text-sm font-medium text-ink">
+      <label htmlFor={id} className="mb-1.5 flex items-center gap-2 text-[13px] font-medium text-ink">
         <span>
           {field.label}
           {field.required && <span className="ml-0.5 text-red-500">*</span>}
         </span>
         {prefilled && (
-          <span className="rounded-full bg-brand-50 px-2 py-0.5 text-[11px] font-medium text-brand-600">
+          <span className="inline-flex items-center gap-1 rounded-md bg-emerald-50 px-1.5 py-0.5 text-[10.5px] font-semibold uppercase tracking-wide text-emerald-700">
+            <svg className="h-2.5 w-2.5" viewBox="0 0 20 20" fill="currentColor" aria-hidden="true">
+              <path fillRule="evenodd" d="M16.7 5.3a1 1 0 0 1 0 1.4l-7.5 7.5a1 1 0 0 1-1.4 0L3.3 9.7a1 1 0 1 1 1.4-1.4l3.1 3.1 6.8-6.8a1 1 0 0 1 1.4 0Z" clipRule="evenodd" />
+            </svg>
             Prefilled
           </span>
         )}
@@ -57,10 +60,7 @@ export default function Field({ field, value, onChange, error, prefilled }: Fiel
             className={`${baseInput} ${borderState} appearance-none pr-9`}
           >
             <option value="">Select…</option>
-            {/* keep a prefilled value valid even if it's not in the base list */}
-            {value && !field.options?.includes(value) && (
-              <option value={value}>{value}</option>
-            )}
+            {value && !field.options?.includes(value) && <option value={value}>{value}</option>}
             {field.options?.map((opt) => (
               <option key={opt} value={opt}>
                 {opt}

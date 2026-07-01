@@ -45,17 +45,19 @@ secrets here.** The token in the URL is the only credential.
 |---|---|
 | `VITE_LOOKUP_URL` | n8n GET webhook that returns prefill fields for a token |
 | `VITE_SUBMIT_URL` | n8n POST webhook that receives the completed application |
-| `VITE_BRAND_NAME` | Optional. Display name (default "Big Think Capital") |
+| `VITE_LOGO_URL` | Optional. Header/footer logo (defaults to BTC's hosted logo) |
 | `VITE_SUPPORT_PHONE` / `VITE_SUPPORT_EMAIL` | Optional. Footer/contact info |
 
-## Branding
+## Branding & design
 
-Placeholders are clearly marked and cheap to swap:
+The look mirrors **lp.bigthinkcapital.com**: white theme, blue (`#2563EB`)
+primary with teal/green accents, and the same React Bits components
+(`GradientText`, `ShinyText`, `SpotlightCard` in [`src/components/reactbits/`](src/components/reactbits)).
 
-- **Colors / fonts** — CSS variables in [`src/index.css`](src/index.css) (`@theme`).
-- **Logo** — inline SVG in [`src/brand/Logo.tsx`](src/brand/Logo.tsx) and
-  [`public/favicon.svg`](public/favicon.svg).
-- **Names / contact** — [`src/brand/brand.ts`](src/brand/brand.ts) (or env vars).
+- **Logo** — the official BTC logo via `VITE_LOGO_URL` (see [`src/brand/Logo.tsx`](src/brand/Logo.tsx)); favicons in `public/`.
+- **Trust badges & stats** — BBB / Google / Trustpilot and headline stats in [`src/brand/brand.ts`](src/brand/brand.ts).
+- **Colors / fonts** — CSS variables in [`src/index.css`](src/index.css) (`@theme`); Inter is self-hosted via `@fontsource-variable/inter`.
+- **Contact** — [`src/brand/brand.ts`](src/brand/brand.ts) or the `VITE_SUPPORT_*` env vars.
 
 ## Field model
 

@@ -1,0 +1,14 @@
+.animated-gradient-text {
+  position: relative;
+  display: inline;
+  font-weight: inherit;
+  overflow: visible;
+  cursor: default;
+}
+
+.animated-gradient-text .text-content {
+  display: inline;
+  background-clip: text;
+  -webkit-background-clip: text;
+  color: transparent;
+}

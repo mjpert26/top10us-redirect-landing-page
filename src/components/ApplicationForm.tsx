@@ -1,5 +1,6 @@
 import { useMemo, useState } from 'react'
 import { motion } from 'framer-motion'
+import { ShieldCheck, ArrowRight } from 'lucide-react'
 import Section from './Section'
 import Field from './Field'
 import { FIELDS, FIELDS_BY_SECTION, SECTIONS } from '../config/fields'
@@ -10,6 +11,7 @@ import { brand } from '../brand/brand'
 
 interface ApplicationFormProps {
   token: string | null
+  matched: boolean
   initialValues: FormValues
   onSubmitted: () => void
 }
@@ -38,13 +40,12 @@ function validate(values: FormValues): Record<string, string> {
   return errors
 }
 
-export default function ApplicationForm({ token, initialValues, onSubmitted }: ApplicationFormProps) {
+export default function ApplicationForm({ token, matched, initialValues, onSubmitted }: ApplicationFormProps) {
   const [values, setValues] = useState<FormValues>(initialValues)
   const [errors, setErrors] = useState<Record<string, string>>({})
   const [submitting, setSubmitting] = useState(false)
   const [submitError, setSubmitError] = useState<string | null>(null)
 
-  // Which fields arrived pre-populated (drives the "Prefilled" chip).
   const prefilledKeys = useMemo(
     () => new Set(Object.entries(initialValues).filter(([, v]) => v).map(([k]) => k)),
     [initialValues],
@@ -69,7 +70,6 @@ export default function ApplicationForm({ token, initialValues, onSubmitted }: A
       return
     }
 
-    // Serialize only the fields the applicant actually provided.
     const payload: FormValues = {}
     for (const [key, val] of Object.entries(values)) {
       const trimmed = (val ?? '').trim()
@@ -90,21 +90,47 @@ export default function ApplicationForm({ token, initialValues, onSubmitted }: A
   }
 
   return (
-    <form onSubmit={handleSubmit} noValidate className="mx-auto -mt-8 max-w-3xl px-5 pb-20 sm:-mt-12">
-      <div className="space-y-5">
+    <form
+      onSubmit={handleSubmit}
+      noValidate
+      id="application"
+      className="rounded-2xl border border-gray-200 bg-white p-6 shadow-card sm:p-8"
+    >
+      <div className="mb-6 border-b border-gray-100 pb-5">
+        {matched && (
+          <span className="animate-pulse-glow mb-3 inline-flex items-center gap-1.5 rounded-full border border-teal-200 bg-teal-50 px-3 py-1 text-[13px] font-semibold text-teal-700">
+            <span className="relative flex h-2 w-2">
+              <span className="absolute inline-flex h-full w-full animate-ping rounded-full bg-teal-400 opacity-60" />
+              <span className="relative inline-flex h-2 w-2 rounded-full bg-teal-500" />
+            </span>
+            You’ve been matched with Big Think Capital
+          </span>
+        )}
+        <h2 className="text-xl font-bold text-gray-900">Complete your application</h2>
+        <p className="mt-1 text-sm text-gray-600">
+          Everything we already have is filled in and marked{' '}
+          <span className="font-medium text-emerald-700">Prefilled</span>. Just review, finish the
+          rest, and submit.
+        </p>
+      </div>
+
+      <div className="space-y-8">
         {SECTIONS.map((section, i) => (
-          <Section key={section.id} section={section} index={i}>
-            {FIELDS_BY_SECTION(section.id).map((field) => (
-              <Field
-                key={field.key}
-                field={field}
-                value={values[field.key] ?? ''}
-                onChange={setValue}
-                error={errors[field.key]}
-                prefilled={prefilledKeys.has(field.key)}
-              />
-            ))}
-          </Section>
+          <div key={section.id}>
+            {i > 0 && <hr className="mb-8 border-gray-100" />}
+            <Section section={section} index={i}>
+              {FIELDS_BY_SECTION(section.id).map((field) => (
+                <Field
+                  key={field.key}
+                  field={field}
+                  value={values[field.key] ?? ''}
+                  onChange={setValue}
+                  error={errors[field.key]}
+                  prefilled={prefilledKeys.has(field.key)}
+                />
+              ))}
+            </Section>
+          </div>
         ))}
       </div>
 
@@ -118,12 +144,12 @@ export default function ApplicationForm({ token, initialValues, onSubmitted }: A
         </motion.div>
       )}
 
-      <div className="mt-8 flex flex-col items-center gap-3">
+      <div className="mt-8">
         <motion.button
           type="submit"
           disabled={submitting}
-          whileTap={{ scale: 0.98 }}
-          className="inline-flex w-full items-center justify-center gap-2 rounded-xl bg-brand-800 px-6 py-3.5 text-[15px] font-semibold text-white shadow-lg shadow-brand-800/20 transition hover:bg-brand-700 focus:outline-none focus:ring-4 focus:ring-brand-500/30 disabled:cursor-not-allowed disabled:opacity-70 sm:w-auto"
+          whileTap={{ scale: 0.99 }}
+          className="inline-flex w-full items-center justify-center gap-2 rounded-xl bg-gradient-to-r from-brand-600 to-brand-700 px-6 py-3.5 text-[15px] font-semibold text-white shadow-md transition hover:from-brand-700 hover:to-brand-800 hover:shadow-lg focus:outline-none focus:ring-4 focus:ring-brand-500/30 disabled:cursor-not-allowed disabled:opacity-70"
         >
           {submitting ? (
             <>
@@ -133,16 +159,13 @@ export default function ApplicationForm({ token, initialValues, onSubmitted }: A
           ) : (
             <>
               Submit application
-              <svg className="h-4 w-4" viewBox="0 0 20 20" fill="currentColor" aria-hidden="true">
-                <path fillRule="evenodd" d="M3 10a.75.75 0 0 1 .75-.75h9.19L9.7 6.03a.75.75 0 0 1 1.06-1.06l4.5 4.5a.75.75 0 0 1 0 1.06l-4.5 4.5a.75.75 0 1 1-1.06-1.06l3.24-3.22H3.75A.75.75 0 0 1 3 10Z" clipRule="evenodd" />
-              </svg>
+              <ArrowRight className="h-4 w-4" />
             </>
           )}
         </motion.button>
-        <p className="max-w-md text-center text-xs leading-relaxed text-muted">
-          By submitting, you agree to be contacted by {brand.name} about your
-          funding request. Your information is encrypted in transit and used only
-          to process your application.
+        <p className="mt-3 flex items-center justify-center gap-1.5 text-center text-xs text-gray-500">
+          <ShieldCheck className="h-3.5 w-3.5 text-emerald-600" />
+          Secured &amp; encrypted. By submitting you agree to be contacted by {brand.name}.
         </p>
       </div>
     </form>

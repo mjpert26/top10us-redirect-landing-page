@@ -1,52 +1,68 @@
 @import "tailwindcss";
+@import "@fontsource-variable/inter";
 
 /*
- * BRAND PLACEHOLDERS — swap these for the real Big Think Capital brand.
- * All colors below are referenced through Tailwind's theme (see @theme),
- * so changing them here re-themes the whole page.
+ * Big Think Capital theme — matched to lp.bigthinkcapital.com.
+ * Primary brand blue (#2563EB) with teal / green accents on a white surface.
  */
 @theme {
-  --color-brand-50: #eef5fc;
-  --color-brand-100: #d6e6f7;
-  --color-brand-200: #adcdef;
-  --color-brand-300: #7dabe2;
-  --color-brand-400: #4b83cf;
-  --color-brand-500: #2b62b0;
-  --color-brand-600: #1d4a8c;
-  --color-brand-700: #163a6e;
-  --color-brand-800: #0f2a4f;   /* primary navy */
-  --color-brand-900: #0b2039;
+  --color-brand-50: #eff6ff;
+  --color-brand-100: #dbeafe;
+  --color-brand-200: #bfdbfe;
+  --color-brand-300: #93c5fd;
+  --color-brand-400: #60a5fa;
+  --color-brand-500: #3b82f6;
+  --color-brand-600: #2563eb;  /* primary */
+  --color-brand-700: #1d4ed8;
+  --color-brand-800: #1e40af;
+  --color-brand-900: #1e3a8a;
+  --color-brand-950: #172554;
 
-  --color-accent-400: #f6c761;
-  --color-accent-500: #f4b740;  /* gold accent */
-  --color-accent-600: #d9971f;
+  --color-ink: #111827;
+  --color-muted: #6b7280;
+  --color-line: #e5e7eb;
 
-  --color-ink: #0e1726;
-  --color-muted: #5b6675;
-
-  --font-sans: "Inter", ui-sans-serif, system-ui, -apple-system, "Segoe UI",
+  --font-sans: "Inter Variable", -apple-system, BlinkMacSystemFont, "Segoe UI",
     Roboto, Helvetica, Arial, sans-serif;
+
+  --shadow-card: 0 1px 2px rgba(15, 23, 42, 0.04), 0 10px 30px -18px rgba(15, 23, 42, 0.25);
+  --shadow-lift: 0 20px 45px -22px rgba(37, 99, 235, 0.35);
 }
 
 html {
   scroll-behavior: smooth;
+  -webkit-text-size-adjust: 100%;
 }
 
 body {
   margin: 0;
-  background:
-    radial-gradient(1200px 600px at 100% -10%, var(--color-brand-100), transparent 55%),
-    radial-gradient(900px 500px at -10% 0%, #eaf1fb, transparent 45%),
-    #f7f9fc;
+  background: #f9fafb;
   color: var(--color-ink);
   font-family: var(--font-sans);
   -webkit-font-smoothing: antialiased;
+  -moz-osx-font-smoothing: grayscale;
   text-rendering: optimizeLegibility;
 }
 
-/* Subtle field autofill styling so prefilled inputs don't look broken */
+/* Keep prefilled inputs looking native */
 input:-webkit-autofill,
-input:-webkit-autofill:focus {
-  -webkit-text-fill-color: var(--color-ink);
+input:-webkit-autofill:hover,
+input:-webkit-autofill:focus,
+select:-webkit-autofill {
+  -webkit-box-shadow: 0 0 0 1000px white inset !important;
+  -webkit-text-fill-color: #111827 !important;
   transition: background-color 9999s ease-in-out 0s;
+}
+
+/* Pulsing glow for the "matched" / same-day badge */
+@keyframes pulse-glow {
+  0%, 100% {
+    box-shadow: 0 0 3px rgba(20, 184, 166, 0.2), 0 0 6px rgba(20, 184, 166, 0.15);
+  }
+  50% {
+    box-shadow: 0 0 8px rgba(20, 184, 166, 0.35), 0 0 12px rgba(20, 184, 166, 0.2), 0 0 16px rgba(20, 184, 166, 0.1);
+  }
+}
+.animate-pulse-glow {
+  animation: pulse-glow 3s ease-in-out infinite;
 }

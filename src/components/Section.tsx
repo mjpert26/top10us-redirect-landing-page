@@ -11,22 +11,19 @@ interface SectionProps {
 export default function Section({ section, index, children }: SectionProps) {
   return (
     <motion.section
-      initial={{ opacity: 0, y: 24 }}
+      initial={{ opacity: 0, y: 12 }}
       whileInView={{ opacity: 1, y: 0 }}
-      viewport={{ once: true, margin: '-60px' }}
-      transition={{ duration: 0.5, ease: 'easeOut', delay: 0.05 * index }}
-      className="rounded-2xl border border-slate-200/80 bg-white/70 p-6 shadow-sm backdrop-blur-sm sm:p-8"
+      viewport={{ once: true, margin: '-30px' }}
+      transition={{ duration: 0.4, ease: 'easeOut' }}
     >
-      <div className="mb-6 flex items-start gap-3">
-        <span className="mt-0.5 flex h-7 w-7 shrink-0 items-center justify-center rounded-full bg-brand-800 text-xs font-semibold text-white">
+      <div className="mb-4 flex items-center gap-3">
+        <span className="flex h-7 w-7 shrink-0 items-center justify-center rounded-lg bg-brand-600 text-[13px] font-semibold text-white">
           {index + 1}
         </span>
         <div>
-          <h2 className="text-lg font-semibold tracking-tight text-brand-900">
-            {section.title}
-          </h2>
+          <h3 className="text-[15px] font-semibold tracking-tight text-gray-900">{section.title}</h3>
           {section.description && (
-            <p className="mt-0.5 text-sm text-muted">{section.description}</p>
+            <p className="text-[13px] leading-snug text-gray-500">{section.description}</p>
           )}
         </div>
       </div>
