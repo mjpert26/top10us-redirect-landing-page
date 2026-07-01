@@ -21,18 +21,18 @@ export const brand = {
     { src: 'https://bigthink-capital-assets.s3.us-east-1.amazonaws.com/images/companyLogo/trustpilot.png', alt: 'Trustpilot' },
   ],
 
-  // Stats shown in the spotlight cards (mirrors the main LP).
-  stats: [
-    { icon: 'dollar', value: '$1.5B+', label: 'Total Funded', spotlight: 'rgba(37, 99, 235, 0.2)', tint: 'bg-blue-100 text-blue-600' },
-    { icon: 'users', value: '40,000+', label: 'Businesses Served', spotlight: 'rgba(20, 184, 166, 0.2)', tint: 'bg-teal-100 text-teal-600' },
-    { icon: 'clock', value: '24 hours', label: 'Fast approvals in one day or less', spotlight: 'rgba(34, 197, 94, 0.2)', tint: 'bg-green-100 text-green-600' },
-    { icon: 'trending', value: '100%', label: 'Client satisfaction guaranteed', spotlight: 'rgba(168, 85, 247, 0.2)', tint: 'bg-purple-100 text-purple-600' },
+  // Premium metric cards shown in the full-width proof bar below the hero.
+  metrics: [
+    { icon: 'dollar', value: '$1.5B+', label: 'Funded to businesses' },
+    { icon: 'users', value: '40,000+', label: 'Businesses served' },
+    { icon: 'clock', value: '24 hrs', label: 'Approvals as fast as' },
+    { icon: 'advisor', value: '1:1', label: 'Dedicated funding advisors' },
   ],
 
-  whyChoose: [
-    { title: 'Fast & simple process', desc: 'Get approved in as little as 24 hours with minimal paperwork' },
-    { title: 'Flexible financing options', desc: 'Tailored solutions for business, real estate, and personal needs' },
-    { title: 'Dedicated support', desc: 'Your personal funding expert guides you every step of the way' },
-    { title: 'Industry-leading experience', desc: 'Fast, friendly financing for real-world businesses' },
+  // "What happens next" — 3-step flow shown in the hero intro.
+  steps: [
+    { title: 'Confirm your details', desc: 'Check what we already have on file.' },
+    { title: 'Submit your request', desc: 'Add the final details and send it in.' },
+    { title: 'Compare with an advisor', desc: 'Review your funding options together.' },
   ],
 } as const

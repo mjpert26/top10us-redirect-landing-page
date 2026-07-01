@@ -1,11 +1,11 @@
 import { useState } from 'react'
 import Header from './components/Header'
-import InfoColumn from './components/InfoColumn'
+import HeroIntro from './components/HeroIntro'
+import ProofBar from './components/ProofBar'
 import ApplicationForm from './components/ApplicationForm'
 import LoadingState from './components/LoadingState'
 import SuccessState from './components/SuccessState'
 import Footer from './components/Footer'
-import GradientText from './components/reactbits/GradientText'
 import { useLeadPrefill } from './hooks/useLeadPrefill'
 
 export default function App() {
@@ -18,42 +18,42 @@ export default function App() {
   if (submitted) return <SuccessState firstName={firstName} />
 
   return (
-    <div className="min-h-screen bg-gray-50">
+    <div className="min-h-screen bg-white">
       <Header />
 
-      <main className="mx-auto max-w-7xl px-4 py-10 sm:px-6 lg:px-8 lg:py-12">
-        {/* Mobile headline */}
-        <div className="mb-6 lg:hidden">
-          <h1 className="text-2xl font-bold leading-tight text-gray-900">
-            {prefill.matched ? 'You’ve been matched with ' : 'Secure funding with '}
-            <GradientText>Big Think Capital</GradientText>
-          </h1>
-        </div>
+      {/* Hero + application */}
+      <section className="relative overflow-hidden">
+        {/* soft gradient + blurred brand shapes */}
+        <div className="pointer-events-none absolute inset-0 -z-10 bg-gradient-to-b from-brand-50 via-white to-white" />
+        <div className="pointer-events-none absolute -right-24 -top-24 -z-10 h-[26rem] w-[26rem] rounded-full bg-brand-200/35 blur-3xl" />
+        <div className="pointer-events-none absolute -left-32 top-32 -z-10 h-80 w-80 rounded-full bg-teal-200/25 blur-3xl" />
 
-        {prefill.lookupFailed && (
-          <div className="mb-6 rounded-xl border border-amber-200 bg-amber-50 px-4 py-3 text-sm text-amber-800">
-            We couldn’t automatically load your saved details, but you can still
-            complete your application below.
-          </div>
-        )}
+        <div className="mx-auto max-w-7xl px-4 py-10 sm:px-6 lg:px-8 lg:py-16">
+          {prefill.lookupFailed && (
+            <div className="mb-6 rounded-xl border border-amber-200 bg-amber-50 px-4 py-3 text-sm text-amber-800">
+              We couldn’t automatically load your saved details, but you can still
+              complete your application below.
+            </div>
+          )}
 
-        <div className="grid grid-cols-1 items-start gap-10 lg:grid-cols-2 lg:gap-12">
-          {/* Form (right on desktop, first on mobile) */}
-          <div className="lg:order-2">
-            <ApplicationForm
-              token={prefill.token}
-              matched={prefill.matched}
-              initialValues={prefill.initialValues}
-              onSubmitted={() => setSubmitted(true)}
-            />
-          </div>
-
-          {/* Info (left on desktop, hidden on mobile) — sticky so it tracks the long form */}
-          <div className="hidden lg:order-1 lg:block lg:sticky lg:top-24 lg:self-start">
-            <InfoColumn matched={prefill.matched} />
+          <div className="grid grid-cols-1 items-start gap-10 lg:grid-cols-[minmax(0,1fr)_minmax(0,34rem)] lg:gap-14">
+            <div className="lg:order-1">
+              <HeroIntro matched={prefill.matched} />
+            </div>
+            <div className="lg:order-2">
+              <ApplicationForm
+                token={prefill.token}
+                matched={prefill.matched}
+                initialValues={prefill.initialValues}
+                onSubmitted={() => setSubmitted(true)}
+              />
+            </div>
           </div>
         </div>
-      </main>
+      </section>
+
+      {/* Full-width proof section */}
+      <ProofBar />
 
       <Footer />
     </div>
