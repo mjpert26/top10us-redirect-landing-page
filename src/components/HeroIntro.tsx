@@ -1,5 +1,5 @@
 import { motion } from 'framer-motion'
-import { Sparkles, Users2 } from 'lucide-react'
+import { Users2 } from 'lucide-react'
 import GradientText from './reactbits/GradientText'
 import { brand } from '../brand/brand'
 
@@ -16,7 +16,7 @@ export default function HeroIntro({ matched }: { matched: boolean }) {
         transition={{ duration: 0.5 }}
         className="inline-flex items-center gap-2 rounded-full border border-brand-200 bg-white/70 px-3 py-1 text-[13px] font-semibold text-brand-700 shadow-sm backdrop-blur"
       >
-        <Sparkles className="h-3.5 w-3.5 text-brand-600" />
+        <img src="/favicon.svg" alt="" aria-hidden="true" className="h-4 w-4" />
         {matched ? 'Matched with Big Think Capital' : 'Big Think Capital'}
       </motion.div>
 
