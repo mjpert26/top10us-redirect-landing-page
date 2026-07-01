@@ -1,0 +1,197 @@
+{
+  "name": "Top10US Landing — Submit",
+  "active": false,
+  "nodes": [
+    {
+      "parameters": {
+        "httpMethod": "POST",
+        "path": "top10us-submit",
+        "responseMode": "responseNode",
+        "options": {
+          "allowedOrigins": "*"
+        }
+      },
+      "id": "submit-webhook",
+      "name": "Webhook",
+      "type": "n8n-nodes-base.webhook",
+      "typeVersion": 2,
+      "position": [0, 300],
+      "webhookId": "top10us-submit"
+    },
+    {
+      "parameters": {
+        "jsCode": "// Sanitize the token and map friendly keys -> Salesforce Lead fields.\n// Reuses the same dictionary as the intake workflow's Build SF Body node.\nconst body = $json.body || {};\nlet token = String(body.token || '').trim().replace(/[^A-Za-z0-9\\-_]/g, '');\n\nconst MAP = {\n  firstname:           { sf: 'FirstName' },\n  lastname:            { sf: 'LastName' },\n  company:             { sf: 'Company' },\n  email:               { sf: 'Email' },\n  phone:               { sf: 'Phone' },\n  mobilephone:         { sf: 'MobilePhone' },\n  amountrequested:     { sf: 'csbs__Amount_Requested__c',  type: 'number' },\n  averagedailybalance: { sf: 'Average_Daily_Balance__c',   type: 'number' },\n  annualrevenue:       { sf: 'AnnualRevenue',              type: 'number' },\n  monthlyrevenue:      { sf: 'csbs__Monthly_Revenue__c' },\n  timeinbusiness:      { sf: 'csbs__Time_in_Business__c' },\n  useofproceeds:       { sf: 'csbs__Use_of_Proceeds__c' },\n  hasexistingloans:    { sf: 'Do_you_have_open_business_loans__c', type: 'yesno' },\n  ein:                 { sf: 'EIN__c' },\n  entitytype:          { sf: 'csbs__Entity_Type__c' },\n  ownershippercentage: { sf: 'csbs__Ownership_Percentage__c', type: 'number' },\n  ssn:                 { sf: 'csbs__Social_Security_Number_Unencrypted__c' },\n  dob:                 { sf: 'csbs__Birthdate__c' },\n  industry:            { sf: 'Industry' },\n  homestreet:          { sf: 'csbs__Home_Address_Street__c' },\n  homecity:            { sf: 'csbs__Home_Address_City__c' },\n  homestate:           { sf: 'csbs__Home_Address_State__c' },\n  businessstreet:      { sf: 'Street' },\n  businesscity:        { sf: 'City' },\n  businessstate:       { sf: 'State' },\n  businesszip:         { sf: 'PostalCode' }\n};\n\nconst lead = {};\nfor (const key in MAP) {\n  let v = body[key];\n  if (v === undefined || v === null || v === '') continue;\n  const m = MAP[key];\n  if (m.type === 'number') {\n    const num = Number(String(v).replace(/[^0-9.-]/g, ''));\n    if (!isFinite(num)) continue;\n    v = num;\n  } else if (m.type === 'yesno') {\n    const s = String(v).toLowerCase().replace(/[^a-z0-9]/g, '');\n    if (['yes','y','true','1'].indexOf(s) !== -1) v = 'Yes';\n    else if (['no','n','false','0'].indexOf(s) !== -1) v = 'No';\n    else continue;\n  }\n  lead[m.sf] = v;\n}\n\nif (body.creditscore !== undefined && body.creditscore !== null && body.creditscore !== '') {\n  const cs = String(body.creditscore).trim();\n  if (/^[0-9]{2,3}$/.test(cs)) lead['csbs__CreditScore__c'] = Number(cs);\n  else lead['Credit_Score_Application__c'] = cs.slice(0, 100);\n}\n\n// OPTIONAL application-complete marker — set the real field name here once\n// confirmed, e.g.:  lead['Application_Status__c'] = 'Completed';\n\nif (!token) return { _notoken: true, lead };\n\nconst findUrl = 'https://bigthink.my.salesforce.com/services/data/v60.0/query/?q='\n  + encodeURIComponent(`SELECT Id FROM Lead WHERE Landing_Page_Token__c='${token}' LIMIT 1`);\n\nreturn { _notoken: false, token, findUrl, lead };\n"
+      },
+      "id": "submit-build",
+      "name": "Build Update",
+      "type": "n8n-nodes-base.code",
+      "typeVersion": 2,
+      "position": [220, 300]
+    },
+    {
+      "parameters": {
+        "conditions": {
+          "options": { "caseSensitive": true, "typeValidation": "loose", "version": 2 },
+          "conditions": [
+            {
+              "id": "t1",
+              "leftValue": "={{ $json._notoken }}",
+              "rightValue": "",
+              "operator": { "type": "boolean", "operation": "true", "singleValue": true }
+            }
+          ],
+          "combinator": "and"
+        },
+        "options": {}
+      },
+      "id": "submit-has-token",
+      "name": "Missing Token?",
+      "type": "n8n-nodes-base.if",
+      "typeVersion": 2,
+      "position": [440, 300]
+    },
+    {
+      "parameters": {
+        "method": "GET",
+        "url": "={{ $json.findUrl }}",
+        "authentication": "predefinedCredentialType",
+        "nodeCredentialType": "salesforceJwtApi",
+        "options": {}
+      },
+      "id": "submit-find",
+      "name": "Find Lead Id",
+      "type": "n8n-nodes-base.httpRequest",
+      "typeVersion": 4.2,
+      "position": [660, 400],
+      "credentials": {
+        "salesforceJwtApi": { "id": "pHcoJZSyY1Krn3ZN", "name": "n8n API" }
+      }
+    },
+    {
+      "parameters": {
+        "jsCode": "// Resolve the Lead Id and prepare the PATCH url + body.\nconst recs = Array.isArray($json.records) ? $json.records : [];\nconst lead = $('Build Update').item.json.lead || {};\nif (!recs.length || !recs[0].Id) {\n  return { _notfound: true };\n}\nconst id = recs[0].Id;\nconst patchUrl = 'https://bigthink.my.salesforce.com/services/data/v60.0/sobjects/Lead/' + id;\nreturn { _notfound: false, patchUrl, lead };\n"
+      },
+      "id": "submit-prep",
+      "name": "Prep Patch",
+      "type": "n8n-nodes-base.code",
+      "typeVersion": 2,
+      "position": [880, 400]
+    },
+    {
+      "parameters": {
+        "conditions": {
+          "options": { "caseSensitive": true, "typeValidation": "loose", "version": 2 },
+          "conditions": [
+            {
+              "id": "f1",
+              "leftValue": "={{ $json._notfound }}",
+              "rightValue": "",
+              "operator": { "type": "boolean", "operation": "true", "singleValue": true }
+            }
+          ],
+          "combinator": "and"
+        },
+        "options": {}
+      },
+      "id": "submit-found",
+      "name": "Lead Not Found?",
+      "type": "n8n-nodes-base.if",
+      "typeVersion": 2,
+      "position": [1100, 400]
+    },
+    {
+      "parameters": {
+        "method": "PATCH",
+        "url": "={{ $json.patchUrl }}",
+        "authentication": "predefinedCredentialType",
+        "nodeCredentialType": "salesforceJwtApi",
+        "sendBody": true,
+        "specifyBody": "json",
+        "jsonBody": "={{ JSON.stringify($json.lead) }}",
+        "options": {}
+      },
+      "id": "submit-patch",
+      "name": "Patch Lead",
+      "type": "n8n-nodes-base.httpRequest",
+      "typeVersion": 4.2,
+      "position": [1320, 480],
+      "credentials": {
+        "salesforceJwtApi": { "id": "pHcoJZSyY1Krn3ZN", "name": "n8n API" }
+      },
+      "onError": "continueErrorOutput"
+    },
+    {
+      "parameters": {
+        "respondWith": "json",
+        "responseBody": "={{ JSON.stringify({ status: 'ok' }) }}",
+        "options": { "responseCode": 200 }
+      },
+      "id": "submit-ok",
+      "name": "Respond OK",
+      "type": "n8n-nodes-base.respondToWebhook",
+      "typeVersion": 1.1,
+      "position": [1540, 400]
+    },
+    {
+      "parameters": {
+        "respondWith": "json",
+        "responseBody": "={{ JSON.stringify({ status: 'error', detail: 'Could not save your application. Please try again.' }) }}",
+        "options": { "responseCode": 422 }
+      },
+      "id": "submit-err",
+      "name": "Respond Error",
+      "type": "n8n-nodes-base.respondToWebhook",
+      "typeVersion": 1.1,
+      "position": [1540, 560]
+    },
+    {
+      "parameters": {
+        "respondWith": "json",
+        "responseBody": "={{ JSON.stringify({ status: 'error', detail: 'We could not find your application. Please use the link from your match email.' }) }}",
+        "options": { "responseCode": 404 }
+      },
+      "id": "submit-notfound",
+      "name": "Respond Not Found",
+      "type": "n8n-nodes-base.respondToWebhook",
+      "typeVersion": 1.1,
+      "position": [1320, 260]
+    },
+    {
+      "parameters": {
+        "respondWith": "json",
+        "responseBody": "={{ JSON.stringify({ status: 'error', detail: 'Missing token. Please use the link from your match email.' }) }}",
+        "options": { "responseCode": 400 }
+      },
+      "id": "submit-notoken",
+      "name": "Respond Missing Token",
+      "type": "n8n-nodes-base.respondToWebhook",
+      "typeVersion": 1.1,
+      "position": [660, 160]
+    }
+  ],
+  "connections": {
+    "Webhook": { "main": [[{ "node": "Build Update", "type": "main", "index": 0 }]] },
+    "Build Update": { "main": [[{ "node": "Missing Token?", "type": "main", "index": 0 }]] },
+    "Missing Token?": {
+      "main": [
+        [{ "node": "Respond Missing Token", "type": "main", "index": 0 }],
+        [{ "node": "Find Lead Id", "type": "main", "index": 0 }]
+      ]
+    },
+    "Find Lead Id": { "main": [[{ "node": "Prep Patch", "type": "main", "index": 0 }]] },
+    "Prep Patch": { "main": [[{ "node": "Lead Not Found?", "type": "main", "index": 0 }]] },
+    "Lead Not Found?": {
+      "main": [
+        [{ "node": "Respond Not Found", "type": "main", "index": 0 }],
+        [{ "node": "Patch Lead", "type": "main", "index": 0 }]
+      ]
+    },
+    "Patch Lead": {
+      "main": [
+        [{ "node": "Respond OK", "type": "main", "index": 0 }],
+        [{ "node": "Respond Error", "type": "main", "index": 0 }]
+      ]
+    }
+  },
+  "settings": { "executionOrder": "v1", "timezone": "America/New_York" }
+}

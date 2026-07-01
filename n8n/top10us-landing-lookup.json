@@ -1,0 +1,118 @@
+{
+  "name": "Top10US Landing — Lookup",
+  "active": false,
+  "nodes": [
+    {
+      "parameters": {
+        "httpMethod": "GET",
+        "path": "top10us-lookup",
+        "responseMode": "responseNode",
+        "options": {
+          "allowedOrigins": "*"
+        }
+      },
+      "id": "lookup-webhook",
+      "name": "Webhook",
+      "type": "n8n-nodes-base.webhook",
+      "typeVersion": 2,
+      "position": [0, 300],
+      "webhookId": "top10us-lookup"
+    },
+    {
+      "parameters": {
+        "jsCode": "// Read + sanitize the token, then build a SOQL query for NON-SENSITIVE\n// prefill fields only. SSN / DOB are intentionally excluded — the browser\n// must never receive them.\nconst q = $json.query || {};\nlet token = String(q.token || q.t || '').trim();\ntoken = token.replace(/[^A-Za-z0-9\\-_]/g, ''); // prevent SOQL injection\n\nif (!token) {\n  return { _notoken: true };\n}\n\nconst fields = [\n  'FirstName','LastName','Company','Email','Phone','MobilePhone',\n  'csbs__Amount_Requested__c','AnnualRevenue','csbs__Monthly_Revenue__c',\n  'Average_Daily_Balance__c','csbs__Time_in_Business__c','Industry',\n  'csbs__Entity_Type__c','Do_you_have_open_business_loans__c',\n  'Street','City','State','PostalCode'\n];\n\nconst soql = `SELECT ${fields.join(',')} FROM Lead WHERE Landing_Page_Token__c='${token}' LIMIT 1`;\nconst url = 'https://bigthink.my.salesforce.com/services/data/v60.0/query/?q=' + encodeURIComponent(soql);\n\nreturn { _notoken: false, token, url };\n"
+      },
+      "id": "lookup-build-query",
+      "name": "Build Query",
+      "type": "n8n-nodes-base.code",
+      "typeVersion": 2,
+      "position": [220, 300]
+    },
+    {
+      "parameters": {
+        "conditions": {
+          "options": { "caseSensitive": true, "typeValidation": "loose", "version": 2 },
+          "conditions": [
+            {
+              "id": "c1",
+              "leftValue": "={{ $json._notoken }}",
+              "rightValue": "",
+              "operator": { "type": "boolean", "operation": "true", "singleValue": true }
+            }
+          ],
+          "combinator": "and"
+        },
+        "options": {}
+      },
+      "id": "lookup-has-token",
+      "name": "Missing Token?",
+      "type": "n8n-nodes-base.if",
+      "typeVersion": 2,
+      "position": [440, 300]
+    },
+    {
+      "parameters": {
+        "method": "GET",
+        "url": "={{ $json.url }}",
+        "authentication": "predefinedCredentialType",
+        "nodeCredentialType": "salesforceJwtApi",
+        "options": {}
+      },
+      "id": "lookup-sf-query",
+      "name": "SF Query",
+      "type": "n8n-nodes-base.httpRequest",
+      "typeVersion": 4.2,
+      "position": [660, 400],
+      "credentials": {
+        "salesforceJwtApi": { "id": "pHcoJZSyY1Krn3ZN", "name": "n8n API" }
+      }
+    },
+    {
+      "parameters": {
+        "jsCode": "// Map the Salesforce record back to the friendly keys the landing page uses.\nconst body = $json || {};\nconst recs = Array.isArray(body.records) ? body.records : [];\nif (!recs.length) return { found: false };\nconst r = recs[0];\n\nconst lead = {\n  firstname: r.FirstName, lastname: r.LastName, company: r.Company,\n  email: r.Email, phone: r.Phone, mobilephone: r.MobilePhone,\n  amountrequested: r.csbs__Amount_Requested__c, annualrevenue: r.AnnualRevenue,\n  monthlyrevenue: r.csbs__Monthly_Revenue__c, averagedailybalance: r.Average_Daily_Balance__c,\n  timeinbusiness: r.csbs__Time_in_Business__c, industry: r.Industry,\n  entitytype: r.csbs__Entity_Type__c, hasexistingloans: r.Do_you_have_open_business_loans__c,\n  businessstreet: r.Street, businesscity: r.City, businessstate: r.State, businesszip: r.PostalCode\n};\n\nconst clean = {};\nfor (const k in lead) {\n  const v = lead[k];\n  if (v !== null && v !== undefined && v !== '') clean[k] = v;\n}\nreturn { found: true, lead: clean };\n"
+      },
+      "id": "lookup-shape",
+      "name": "Shape Response",
+      "type": "n8n-nodes-base.code",
+      "typeVersion": 2,
+      "position": [880, 400]
+    },
+    {
+      "parameters": {
+        "respondWith": "json",
+        "responseBody": "={{ JSON.stringify($json) }}",
+        "options": { "responseCode": 200 }
+      },
+      "id": "lookup-respond-found",
+      "name": "Respond Found",
+      "type": "n8n-nodes-base.respondToWebhook",
+      "typeVersion": 1.1,
+      "position": [1100, 400]
+    },
+    {
+      "parameters": {
+        "respondWith": "json",
+        "responseBody": "={{ JSON.stringify({ found: false }) }}",
+        "options": { "responseCode": 200 }
+      },
+      "id": "lookup-respond-none",
+      "name": "Respond No Token",
+      "type": "n8n-nodes-base.respondToWebhook",
+      "typeVersion": 1.1,
+      "position": [660, 180]
+    }
+  ],
+  "connections": {
+    "Webhook": { "main": [[{ "node": "Build Query", "type": "main", "index": 0 }]] },
+    "Build Query": { "main": [[{ "node": "Missing Token?", "type": "main", "index": 0 }]] },
+    "Missing Token?": {
+      "main": [
+        [{ "node": "Respond No Token", "type": "main", "index": 0 }],
+        [{ "node": "SF Query", "type": "main", "index": 0 }]
+      ]
+    },
+    "SF Query": { "main": [[{ "node": "Shape Response", "type": "main", "index": 0 }]] },
+    "Shape Response": { "main": [[{ "node": "Respond Found", "type": "main", "index": 0 }]] }
+  },
+  "settings": { "executionOrder": "v1", "timezone": "America/New_York" }
+}
