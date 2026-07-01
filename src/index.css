@@ -1,0 +1,52 @@
+@import "tailwindcss";
+
+/*
+ * BRAND PLACEHOLDERS — swap these for the real Big Think Capital brand.
+ * All colors below are referenced through Tailwind's theme (see @theme),
+ * so changing them here re-themes the whole page.
+ */
+@theme {
+  --color-brand-50: #eef5fc;
+  --color-brand-100: #d6e6f7;
+  --color-brand-200: #adcdef;
+  --color-brand-300: #7dabe2;
+  --color-brand-400: #4b83cf;
+  --color-brand-500: #2b62b0;
+  --color-brand-600: #1d4a8c;
+  --color-brand-700: #163a6e;
+  --color-brand-800: #0f2a4f;   /* primary navy */
+  --color-brand-900: #0b2039;
+
+  --color-accent-400: #f6c761;
+  --color-accent-500: #f4b740;  /* gold accent */
+  --color-accent-600: #d9971f;
+
+  --color-ink: #0e1726;
+  --color-muted: #5b6675;
+
+  --font-sans: "Inter", ui-sans-serif, system-ui, -apple-system, "Segoe UI",
+    Roboto, Helvetica, Arial, sans-serif;
+}
+
+html {
+  scroll-behavior: smooth;
+}
+
+body {
+  margin: 0;
+  background:
+    radial-gradient(1200px 600px at 100% -10%, var(--color-brand-100), transparent 55%),
+    radial-gradient(900px 500px at -10% 0%, #eaf1fb, transparent 45%),
+    #f7f9fc;
+  color: var(--color-ink);
+  font-family: var(--font-sans);
+  -webkit-font-smoothing: antialiased;
+  text-rendering: optimizeLegibility;
+}
+
+/* Subtle field autofill styling so prefilled inputs don't look broken */
+input:-webkit-autofill,
+input:-webkit-autofill:focus {
+  -webkit-text-fill-color: var(--color-ink);
+  transition: background-color 9999s ease-in-out 0s;
+}

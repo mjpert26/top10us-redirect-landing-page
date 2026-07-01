@@ -1,0 +1,26 @@
+{
+  "name": "top10us-redirect-landing-page",
+  "private": true,
+  "version": "1.0.0",
+  "type": "module",
+  "description": "Big Think Capital application landing page for Top10US-referred leads. Reads a token from the URL, pre-populates the applicant's data, and submits the completed application.",
+  "scripts": {
+    "dev": "vite",
+    "build": "tsc -b && vite build",
+    "preview": "vite preview"
+  },
+  "dependencies": {
+    "framer-motion": "^11.11.9",
+    "react": "^18.3.1",
+    "react-dom": "^18.3.1"
+  },
+  "devDependencies": {
+    "@tailwindcss/vite": "^4.0.0",
+    "@types/react": "^18.3.12",
+    "@types/react-dom": "^18.3.1",
+    "@vitejs/plugin-react": "^4.3.3",
+    "tailwindcss": "^4.0.0",
+    "typescript": "^5.6.3",
+    "vite": "^5.4.10"
+  }
+}
