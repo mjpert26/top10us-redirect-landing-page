@@ -1,6 +1,9 @@
 import { motion } from 'framer-motion'
+import { ClipboardCheck, Send, Handshake } from 'lucide-react'
 import GradientText from './reactbits/GradientText'
 import { brand } from '../brand/brand'
+
+const STEP_ICONS = [ClipboardCheck, Send, Handshake]
 
 const fade = {
   initial: { opacity: 0, y: 14 },
@@ -34,20 +37,23 @@ export default function HeroIntro({ matched }: { matched: boolean }) {
           What happens next
         </div>
         <ol className="space-y-7">
-          {brand.steps.map((s, i) => (
-            <li key={s.title} className="relative flex gap-5">
-              {i < brand.steps.length - 1 && (
-                <span className="absolute left-[27px] top-[3.75rem] -bottom-7 w-px bg-gradient-to-b from-brand-300 to-brand-100" />
-              )}
-              <span className="flex h-14 w-14 shrink-0 items-center justify-center rounded-2xl bg-gradient-to-br from-brand-500 to-brand-700 text-xl font-bold text-white shadow-lg shadow-brand-600/25">
-                {i + 1}
-              </span>
-              <div className="pt-1.5">
-                <div className="text-lg font-semibold tracking-tight text-gray-900">{s.title}</div>
-                <div className="mt-1 text-[15px] leading-relaxed text-gray-500">{s.desc}</div>
-              </div>
-            </li>
-          ))}
+          {brand.steps.map((s, i) => {
+            const Icon = STEP_ICONS[i] ?? ClipboardCheck
+            return (
+              <li key={s.title} className="relative flex gap-5">
+                {i < brand.steps.length - 1 && (
+                  <span className="absolute left-[27px] top-[4rem] -bottom-7 w-px bg-gradient-to-b from-brand-200 to-transparent" />
+                )}
+                <span className="flex h-14 w-14 shrink-0 items-center justify-center rounded-full bg-white text-brand-600 shadow-md ring-1 ring-brand-100">
+                  <Icon className="h-6 w-6" strokeWidth={2} />
+                </span>
+                <div className="pt-2">
+                  <div className="text-lg font-semibold tracking-tight text-gray-900">{s.title}</div>
+                  <div className="mt-1 text-[15px] leading-relaxed text-gray-500">{s.desc}</div>
+                </div>
+              </li>
+            )
+          })}
         </ol>
       </motion.div>
     </div>
