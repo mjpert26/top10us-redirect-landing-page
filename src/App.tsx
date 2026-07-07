@@ -8,15 +8,17 @@ import SuccessState from './components/SuccessState'
 import Footer from './components/Footer'
 import Aurora from './components/reactbits/Aurora'
 import { useLeadPrefill } from './hooks/useLeadPrefill'
+import type { Agent } from './config/types'
 
 export default function App() {
   const prefill = useLeadPrefill()
   const [submitted, setSubmitted] = useState(false)
+  const [agent, setAgent] = useState<Agent | null>(null)
 
   const firstName = prefill.initialValues.firstname || undefined
 
   if (prefill.status === 'loading') return <LoadingState />
-  if (submitted) return <SuccessState firstName={firstName} />
+  if (submitted) return <SuccessState firstName={firstName} agent={agent} />
 
   return (
     <div className="min-h-screen bg-white">
@@ -44,7 +46,10 @@ export default function App() {
                 token={prefill.token}
                 matched={prefill.matched}
                 initialValues={prefill.initialValues}
-                onSubmitted={() => setSubmitted(true)}
+                onSubmitted={(a) => {
+                  setAgent(a)
+                  setSubmitted(true)
+                }}
               />
             </div>
           </div>

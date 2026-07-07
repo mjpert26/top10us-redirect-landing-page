@@ -6,14 +6,14 @@ import Field from './Field'
 import { FIELDS, FIELDS_BY_SECTION, SECTIONS } from '../config/fields'
 import { serializeValue } from '../lib/format'
 import { submitApplication } from '../lib/api'
-import type { FormValues } from '../config/types'
+import type { Agent, FormValues } from '../config/types'
 import { brand } from '../brand/brand'
 
 interface ApplicationFormProps {
   token: string | null
   matched: boolean
   initialValues: FormValues
-  onSubmitted: () => void
+  onSubmitted: (agent: Agent | null) => void
 }
 
 const FIELD_BY_KEY = new Map(FIELDS.map((f) => [f.key, f]))
@@ -79,8 +79,8 @@ export default function ApplicationForm({ token, matched, initialValues, onSubmi
 
     setSubmitting(true)
     try {
-      await submitApplication(token ?? '', payload)
-      onSubmitted()
+      const { agent } = await submitApplication(token ?? '', payload)
+      onSubmitted(agent)
     } catch (err) {
       setSubmitError(err instanceof Error ? err.message : 'Something went wrong. Please try again.')
       window.scrollTo({ top: document.body.scrollHeight, behavior: 'smooth' })

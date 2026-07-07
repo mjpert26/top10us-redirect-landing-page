@@ -44,3 +44,12 @@ export interface LeadLookupResponse {
 }
 
 export type FormValues = Record<string, string>
+
+/** Assigned Salesforce owner, returned by the submit webhook. */
+export interface Agent {
+  name?: string | null
+  title?: string | null
+  email?: string | null
+  phone?: string | null
+  photoUrl?: string | null
+}

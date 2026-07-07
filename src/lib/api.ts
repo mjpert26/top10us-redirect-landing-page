@@ -1,4 +1,4 @@
-import type { FormValues, LeadLookupResponse } from '../config/types'
+import type { Agent, FormValues, LeadLookupResponse } from '../config/types'
 
 const LOOKUP_URL = import.meta.env.VITE_LOOKUP_URL
 const SUBMIT_URL = import.meta.env.VITE_SUBMIT_URL
@@ -26,11 +26,14 @@ export async function getLead(token: string): Promise<LeadLookupResponse> {
   return { found: Boolean(data.found), lead: data.lead ?? {} }
 }
 
-/** Submit the completed application. The token ties it back to the Lead. */
+/**
+ * Submit the completed application. The token ties it back to the Lead.
+ * Returns the assigned advisor (Lead owner), when the webhook provides it.
+ */
 export async function submitApplication(
   token: string,
   values: FormValues,
-): Promise<void> {
+): Promise<{ agent: Agent | null }> {
   if (!SUBMIT_URL) throw new ApiConfigError('VITE_SUBMIT_URL is not configured')
 
   const res = await fetch(SUBMIT_URL, {
@@ -49,4 +52,13 @@ export async function submitApplication(
     }
     throw new Error(detail || `Submission failed (${res.status})`)
   }
+
+  let agent: Agent | null = null
+  try {
+    const body = await res.json()
+    agent = body?.agent ?? null
+  } catch {
+    /* response body optional */
+  }
+  return { agent }
 }

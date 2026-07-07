@@ -1,0 +1,82 @@
+{
+  "nodes": [
+    {
+      "parameters": {
+        "mode": "runOnceForAllItems",
+        "language": "javaScript",
+        "jsCode": "// ── n8n Code node: \"Build Agent Query\" ───────────────────────────────────────\n// Runs after Patch Lead (success). Resolves the Lead Id from Prep Patch and\n// builds a SOQL query for the assigned owner. TYPEOF handles the case where the\n// lead is owned by a queue (Group) instead of a User without erroring.\nconst patchUrl = $('Prep Patch').item.json.patchUrl || '';\nconst id = String(patchUrl).split('/').pop();\n\nconst soql =\n  \"SELECT Id, TYPEOF Owner \" +\n  \"WHEN User THEN Name, Title, Email, Phone, MobilePhone, Personal_Cell_Phone_Number__c, Headshot_Photo__c, User_Photo_URL__c \" +\n  \"ELSE Name END \" +\n  \"FROM Lead WHERE Id='\" + id + \"' LIMIT 1\";\n\nconst agentUrl =\n  'https://bigthink.my.salesforce.com/services/data/v60.0/query/?q=' + encodeURIComponent(soql);\n\nreturn { agentUrl };\n"
+      },
+      "id": "submit-build-agent-query",
+      "name": "Build Agent Query",
+      "type": "n8n-nodes-base.code",
+      "typeVersion": 2,
+      "position": [
+        1520,
+        460
+      ]
+    },
+    {
+      "parameters": {
+        "method": "GET",
+        "url": "={{ $json.agentUrl }}",
+        "authentication": "predefinedCredentialType",
+        "nodeCredentialType": "salesforceJwtApi",
+        "options": {}
+      },
+      "id": "submit-get-agent",
+      "name": "Get Agent",
+      "type": "n8n-nodes-base.httpRequest",
+      "typeVersion": 4.2,
+      "position": [
+        1740,
+        460
+      ],
+      "credentials": {
+        "salesforceJwtApi": {
+          "id": "pHcoJZSyY1Krn3ZN",
+          "name": "n8n API"
+        }
+      },
+      "onError": "continueRegularOutput"
+    },
+    {
+      "parameters": {
+        "mode": "runOnceForAllItems",
+        "language": "javaScript",
+        "jsCode": "// ── n8n Code node: \"Shape Agent\" ─────────────────────────────────────────────\n// Shapes the assigned owner (only when it's a User) into the compact agent\n// payload the landing page renders on the success screen. Returns agent: null\n// for queue-owned leads or if the lookup returned nothing.\nconst recs = Array.isArray($json.records) ? $json.records : [];\nconst o = recs.length ? recs[0].Owner : null;\n\nlet agent = null;\nif (o && o.attributes && o.attributes.type === 'User') {\n  agent = {\n    name: o.Name || null,\n    title: o.Title || null,\n    email: o.Email || null,\n    phone: o.Phone || o.Personal_Cell_Phone_Number__c || o.MobilePhone || null,\n    photoUrl: o.Headshot_Photo__c || o.User_Photo_URL__c || null,\n  };\n}\n\nreturn { agent };\n"
+      },
+      "id": "submit-shape-agent",
+      "name": "Shape Agent",
+      "type": "n8n-nodes-base.code",
+      "typeVersion": 2,
+      "position": [
+        1960,
+        460
+      ]
+    }
+  ],
+  "connections": {
+    "Build Agent Query": {
+      "main": [
+        [
+          {
+            "node": "Get Agent",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Get Agent": {
+      "main": [
+        [
+          {
+            "node": "Shape Agent",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    }
+  }
+}
