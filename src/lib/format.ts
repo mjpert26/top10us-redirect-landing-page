@@ -45,8 +45,11 @@ export function serializeValue(type: FieldType, value: string): string {
   switch (type) {
     case 'currency':
       return digits(value)
+    // Salesforce validates these with dashes — send the formatted value.
     case 'ssn':
+      return formatValue('ssn', value) // XXX-XX-XXXX
     case 'ein':
+      return formatValue('ein', value) // XX-XXXXXXX
     case 'tel':
       return digits(value)
     default:

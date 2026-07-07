@@ -11,9 +11,6 @@ export const brand = {
     import.meta.env.VITE_LOGO_URL ||
     'https://bigthinkcapital.com/wp-content/uploads/2025/12/BTC-Logo-Blue-Sized-1.png',
 
-  supportPhone: import.meta.env.VITE_SUPPORT_PHONE || '(888) 400-5745',
-  supportEmail: import.meta.env.VITE_SUPPORT_EMAIL || 'hello@bigthinkcapital.com',
-
   // Trust badges (hosted on BTC's S3 bucket, same as the main LP).
   trustBadges: [
     { src: 'https://bigthink-capital-assets.s3.us-east-1.amazonaws.com/images/companyLogo/bbb.png', alt: 'BBB Accredited Business' },

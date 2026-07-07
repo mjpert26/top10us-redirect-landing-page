@@ -1,4 +1,6 @@
+import { useState } from 'react'
 import { motion } from 'framer-motion'
+import { Eye, EyeOff } from 'lucide-react'
 import type { FieldDef } from '../config/types'
 import { formatValue } from '../lib/format'
 
@@ -17,6 +19,7 @@ const baseInput =
 
 export default function Field({ field, value, onChange, error, prefilled }: FieldProps) {
   const id = `field-${field.key}`
+  const [revealed, setRevealed] = useState(false)
   const invalid = Boolean(error)
   const borderState = invalid
     ? 'border-red-400 focus:border-red-500 focus:ring-red-500/10'
@@ -88,6 +91,29 @@ export default function Field({ field, value, onChange, error, prefilled }: Fiel
             aria-invalid={invalid}
             className={`${baseInput} ${borderState} pl-7`}
           />
+        </div>
+      ) : field.type === 'ssn' ? (
+        <div className="relative">
+          <input
+            id={id}
+            type={revealed ? 'text' : 'password'}
+            value={value}
+            onChange={(e) => handle(e.target.value)}
+            inputMode="numeric"
+            placeholder={field.placeholder}
+            autoComplete="off"
+            aria-invalid={invalid}
+            className={`${baseInput} ${borderState} pr-10`}
+          />
+          <button
+            type="button"
+            onClick={() => setRevealed((r) => !r)}
+            aria-label={revealed ? 'Hide SSN' : 'Show SSN'}
+            aria-pressed={revealed}
+            className="absolute right-2.5 top-1/2 -translate-y-1/2 rounded p-1 text-muted transition hover:text-brand-600 focus:outline-none focus-visible:ring-2 focus-visible:ring-brand-500/40"
+          >
+            {revealed ? <EyeOff className="h-4 w-4" /> : <Eye className="h-4 w-4" />}
+          </button>
         </div>
       ) : (
         <input

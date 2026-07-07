@@ -46,7 +46,6 @@ secrets here.** The token in the URL is the only credential.
 | `VITE_LOOKUP_URL` | n8n GET webhook that returns prefill fields for a token |
 | `VITE_SUBMIT_URL` | n8n POST webhook that receives the completed application |
 | `VITE_LOGO_URL` | Optional. Header/footer logo (defaults to BTC's hosted logo) |
-| `VITE_SUPPORT_PHONE` / `VITE_SUPPORT_EMAIL` | Optional. Footer/contact info |
 
 ## Branding & design
 

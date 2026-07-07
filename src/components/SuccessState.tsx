@@ -46,13 +46,6 @@ export default function SuccessState({ firstName }: { firstName?: string }) {
               </li>
             ))}
           </ul>
-
-          <div className="mt-8 rounded-xl bg-brand-50 px-5 py-4 text-sm text-brand-800">
-            Need us sooner? Call{' '}
-            <a href={`tel:${brand.supportPhone}`} className="font-semibold hover:underline">
-              {brand.supportPhone}
-            </a>
-          </div>
         </motion.div>
       </div>
     </div>
