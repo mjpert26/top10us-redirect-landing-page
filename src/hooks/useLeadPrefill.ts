@@ -16,10 +16,22 @@ export interface PrefillState {
   initialValues: FormValues
 }
 
+// A valid token: at least 6 chars of [A-Za-z0-9_-] (UUIDs qualify). Guards
+// against treating "/" or stray asset paths as a token.
+const cleanToken = (v: string | null | undefined): string | null => {
+  const t = (v || '').trim()
+  return /^[A-Za-z0-9_-]{6,}$/.test(t) ? t : null
+}
+
 function getTokenFromUrl(): string | null {
+  // Preferred: path-based link — https://site/<token>
+  const firstSegment = window.location.pathname.replace(/^\/+|\/+$/g, '').split('/')[0]
+  const fromPath = cleanToken(decodeURIComponent(firstSegment))
+  if (fromPath) return fromPath
+
+  // Fallback: query string — https://site/?token=<token>
   const params = new URLSearchParams(window.location.search)
-  const token = params.get('token') || params.get('t')
-  return token && token.trim() ? token.trim() : null
+  return cleanToken(params.get('token') || params.get('t'))
 }
 
 const FIELD_TYPE = new Map(FIELDS.map((f) => [f.key, f.type]))

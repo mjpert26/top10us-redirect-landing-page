@@ -93,6 +93,7 @@ set('PostalCode', src.businesszip || src.zip);
 set('LeadSource', 'Top10US');            // remove if LeadSource picklist is restricted & lacks this value
 set('Landing_Page_Token__c', token);
 
-const applicationUrl = LANDING_BASE + '/?token=' + encodeURIComponent(token);
+// Path-based personalized link: https://<domain>/<token>
+const applicationUrl = LANDING_BASE.replace(/\/+$/, '') + '/' + encodeURIComponent(token);
 
 return { lead, token, applicationUrl, unmappedIndustry };
