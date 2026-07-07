@@ -105,6 +105,12 @@
         "url": "={{ $json.patchUrl }}",
         "authentication": "predefinedCredentialType",
         "nodeCredentialType": "salesforceJwtApi",
+        "sendHeaders": true,
+        "headerParameters": {
+          "parameters": [
+            { "name": "Sforce-Auto-Assign", "value": "false" }
+          ]
+        },
         "sendBody": true,
         "specifyBody": "json",
         "jsonBody": "={{ JSON.stringify($json.lead) }}",
