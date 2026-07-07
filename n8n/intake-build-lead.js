@@ -93,6 +93,7 @@ set('PostalCode', src.businesszip || src.zip);
 // NOTE: LeadSource is a restricted picklist — only set it once a "Top10US"
 // value exists, otherwise it fails the whole insert. Left off for now.
 // set('LeadSource', 'Top10US');
+lead['csbs__ISO__c'] = '001Vy00001hYSgYIAW';   // Top10US ISO — set on every intake Lead
 set('Landing_Page_Token__c', token);
 
 // Path-based personalized link: https://<domain>/<token>
