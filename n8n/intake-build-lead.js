@@ -10,7 +10,7 @@
 // PREREQUISITE: Lead.Landing_Page_Token__c must exist (Text, External ID, Unique).
 // TODO: set LANDING_BASE to the deployed landing-page domain.
 
-const LANDING_BASE = 'https://apply.bigthinkcapital.com'; // <-- set final domain
+const LANDING_BASE = 'https://go.bigthinkcapital.com';
 
 const body = $json.body || {};
 
@@ -90,7 +90,9 @@ set('City', src.businesscity);
 set('PostalCode', src.businesszip || src.zip);
 
 // Provenance + token
-set('LeadSource', 'Top10US');            // remove if LeadSource picklist is restricted & lacks this value
+// NOTE: LeadSource is a restricted picklist — only set it once a "Top10US"
+// value exists, otherwise it fails the whole insert. Left off for now.
+// set('LeadSource', 'Top10US');
 set('Landing_Page_Token__c', token);
 
 // Path-based personalized link: https://<domain>/<token>
