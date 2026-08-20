@@ -6,10 +6,10 @@
 export const brand = {
   name: 'Big Think Capital',
 
-  // Official WordPress-hosted logo (same source the main LP uses).
+  // Logo hosted in the Btc-Website Supabase project (uploads bucket, public).
   logoUrl:
     import.meta.env.VITE_LOGO_URL ||
-    'https://bigthinkcapital.com/wp-content/uploads/2025/12/BTC-Logo-Blue-Sized-1.png',
+    'https://afhsvhhyfhmafzohxzss.supabase.co/storage/v1/object/public/uploads/2026/08/899d905c-8cfb-40c1-b10d-1882d5deed2a-btc-logo-dark.webp',
 
   // Trust badges (hosted on BTC's S3 bucket, same as the main LP).
   trustBadges: [
